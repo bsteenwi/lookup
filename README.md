@@ -1,4 +1,4 @@
-# DBpedia Lookup
+# DBpedia Lookup 2016
 
 [![Build Status](https://travis-ci.org/dbpedia/lookup.svg?branch=master)](https://travis-ci.org/dbpedia/lookup)
 
@@ -44,85 +44,70 @@ By default all data is returned as XML, the service also retuns JSON to any requ
     cd lookup
     mvn clean install
 
-### Download and configure the index
-
-You can get our indexes from [HERE](http://downloads.dbpedia-spotlight.org/dbpedia_lookup/)
-
-### Run the server
-
-    
-    `./run Server [PATH TO THE INDEX]/[VERSION]/`
-   
-   E.g:
-    
-    `./run Server /opt/dbpedia-lookup/2015-04`
-
-**Note: The index file must be decompressed**
-    
-#### Available versions: 
-    
-* current - from Latest DBpedia Dump (2015-10)
-
-    
-#### Available languages (i18n working in progress): 
-    
-* en - English
-    
-    
-
-The server should now be running at http://localhost:1111
 
 ## Rebuilding the index
 
-Rebuilding an index is usually not required, if you only intend on running a local mirror of the service you can donwload a prebuilt index as outlined above.
+    Rebuilding an index is required if you want to use the 2016 version of DBPedia.
 
-To re-build the index you will require
+    To re-build the index you will require
 
-* DBpedia datasets
-* [Wikistatsextractor output](http://downloads.dbpedia-spotlight.org) - [wikistatsextractor](https://github.com/jodaiber/wikistatsextractor) is a drop-in replacement of [pignlproc](https://github.com/dbpedia-spotlight/pignlproc)
-* Unix
+    * DBpedia datasets
 
 
-### Get the following DBpedia datasets
-from http://downloads.dbpedia.org/2015-10/core-i18n/en/
+    ### Get the following DBpedia datasets
+    from http://downloads.dbpedia.org/2016-10/core-i18n/en/
 
-* redirects\_en.nt (or .ttl)
-* short\_abstracts\_en.nt (or .ttl)
-* instance\_types\_en.nt (or .ttl)
-* article\_categories\_en.nt (or .ttl)
+    * redirects\_en.ttl (Redirects are not indexed, but they are excluded as targets of lookup.)
+    * short\_abstracts\_en.ttl
+    * instance\_types\_en.ttl  --> it is beter to rename this one to: core_instances.ttl
+    * article\_categories\_en.ttl
 
-from http://downloads.dbpedia.org/2015-10/core
+    from http://downloads.dbpedia.org/2016-10/core/
 
-* instance_types_en.ttl
-* instance_types_sdtyped_dbo_en.ttl
-* instance_types_transitive_en.ttl
+    * instance_types_en.ttl
+    * instance_types_lhd_dbo_en.ttl
+    * instance_types_transitive_en.ttl  
 
-### Concatenate all data and sort by URI
+    ### Concatenate all data and sort by URI
 
-This is necessary because indexing in sorted order is significantly faster.
+    This is necessary because indexing in sorted order is significantly faster.
 
-      cat instance_types_en.nt (or .ttl)  \
-          short_abstracts_en.nt (or .ttl) \
-          article_categories_en.nt (or .ttl) \
-          instance_types_en.ttl  \
-          instance_types_sdtyped_dbo_en.ttl \
-          instance_types_transitive_en.ttl | sort >all_dbpedia_data.nt (or .ttl)
-
-### Get the dataset redirects\_en.nt (or .ttl)
-
-Redirects are not indexed, but they are excluded as targets of lookup.
+          cat core_instances.ttl  \
+              short_abstracts_en.ttl \
+              article_categories_en.ttl \
+              instance_types_en.ttl  \
+              instance_types_lhd_dbo_en.ttl \
+              instance_types_transitive_en.ttl | sort >all_dbpedia_data..ttl
 
 ### Run Indexer
 
-The indexer has to be run twice:
+    The indexer has to be run twice:
 
-1. with the DBpedia data 
+    1. with the DBpedia data
 
-        ./run Indexer lookup_index_dir redirects_en.nt (or .ttl) all_dbpedia_data.nt (or .ttl)
+            ./run Indexer lookup_index_dir redirects_en..ttl all_dbpedia_data.nt .ttl
 
-2. with the wikistatsextractor data
+    (this code will make the segementation files needed to run dbpeida lookup)
 
-        ./run Indexer lookup_index_dir redirects_en.nt (or .ttl) pairCounts
+### Run the server
+
+
+    `./run Server lookup_index_dir`
+
+    lookup_index_dir is the directory created by Run Indexer (previous step)
+    E.g:
+
+    `./run Server ..`
+
+
+#### Available languages (i18n working in progress):
+
+* en - English
+
+but you can change the language by indexing other files
+
+The server should now be running at http://localhost:1111
+
 
 ## Support and feedback
 
